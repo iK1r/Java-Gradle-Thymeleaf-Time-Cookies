@@ -1,0 +1,40 @@
+plugins {
+    id 'war'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Servlet API is provided by Apache Tomcat 9.
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+    testImplementation 'javax.servlet:javax.servlet-api:4.0.1'
+
+    // Thymeleaf is packaged into WEB-INF/lib inside ROOT.war.
+    implementation 'org.thymeleaf:thymeleaf:3.1.7.RELEASE'
+}
+
+tasks.named('war') {
+    archiveFileName = 'ROOT.war'
+}
+
+tasks.register('selfTest', JavaExec) {
+    group = 'verification'
+    description = 'Check Thymeleaf output, timezone validation, and lastTimezone Cookie flow'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.example.timeservlet.TimeServletSelfTest'
+}
+
+tasks.named('check') {
+    dependsOn selfTest
+}
+
+// SelfTest is a Java main class, not a JUnit test.
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+}
